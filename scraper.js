@@ -3,7 +3,7 @@ const cheerio = require('cheerio');
 const fs = require('fs');
 
 // the website to be scraped.
-const url = "http://shirts4mike.com/shirts.php";
+const url = "http//shirts4mike.com/shirts.php";
 
 // if there is an error, then call this function to append 
 // it to 'error.log'.
