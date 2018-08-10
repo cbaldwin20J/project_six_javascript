@@ -30,7 +30,7 @@ request(url, function(err, response, html){
 		// get all the html from the 'url'.
 		let $ = cheerio.load(html);
 		// put each shirt detail page url in an array.
-		var shirt_detail_urls = [];
+		const shirt_detail_urls = [];
 		// each 'li' is one shirt.
 		$('.products li').each(function (index, li) {
     		shirt_detail_urls.push($(li).find('a').attr("href")); // "this" is the current element in the loop
@@ -61,7 +61,7 @@ request(url, function(err, response, html){
 					// We want a bunch of arrays inside one container array.
 					shirt_dictionaries.push([title, price, imageUrl, url, time]);
 					// when all of the shirts have been scraped. 8 total shirts.
-					if(shirt_dictionaries.length == 8){
+					if(shirt_dictionaries.length == 9){
 						const dir = './data';
 						// if 'data' folder doesn't exist then create it.
 						if (!fs.existsSync(dir)){
