@@ -35,16 +35,16 @@ request(url, function(err, response, html){
 		$('.products li').each(function (index, li) {
     		shirt_detail_urls.push($(li).find('a').attr("href")); // "this" is the current element in the loop
 		});
-
+		
 		// 'shirt_dictionaries will be used for the createCSVFile module'
-		const shirt_dictionaries = [["title", "price", "imageUrl", "url", "time"]];
+		const shirt_dictionaries = [["Title", "Price", "ImageUrl", "URL", "Time"]];
 		const raw_date = new Date();
 
 		
 		// to be used for the csv file name. ex: 2018-07-03.csv
 		const date = raw_date.getFullYear() + "-" + ('0' + raw_date.getMonth()).slice(-2) + "-" + ('0' + raw_date.getDate()).slice(-2);
 		// to be put in the csv file as the time. ex: 7:30
-		const hoursMinutes = raw_date.getHours() + ':' + raw_date.getMinutes();
+		const hoursMinutes = ('0' + raw_date.getHours()).slice(-2) + ':' + ('0' + raw_date.getMinutes()).slice(-2);
 		for(let i=0; i<shirt_detail_urls.length; i++){
 			let url2 = `http://shirts4mike.com/${shirt_detail_urls[i]}`;
 			// scrape each shirts detail page for the title, price, etc.
@@ -70,12 +70,15 @@ request(url, function(err, response, html){
 
 						// gets the old csv file to delete
 						let file = glob.sync("data/*.csv");
+
 						// deletes the old csv file
-						fs.unlink(file[0], function(error) {
-						    if (error) {
-						        throw error;
-						    }
-						});
+						if(file[0]){
+							fs.unlink(file[0], function(error) {
+						    	if (error) {
+						        	throw error;
+						    	}
+							});
+						}
 						
 						// creates the new csv file
 						createCSVFile(`data/${date}.csv`, shirt_dictionaries);
