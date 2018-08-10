@@ -1,9 +1,10 @@
 const request = require('request');
 const cheerio = require('cheerio');
 const fs = require('fs');
+const createCSVFile = require('csv-file-creator');
 
 // the website to be scraped.
-const url = "http//shirts4mike.com/shirts.php";
+const url = "http://shirts4mike.com/shirts.php";
 
 // if there is an error, then call this function to append 
 // it to 'error.log'.
@@ -35,10 +36,12 @@ request(url, function(err, response, html){
 		});
 
 		// put an object literal for each shirt's title, price, etc in array.
-		const shirt_dictionaries = [];
+		const shirt_dictionaries = [["title", "price", "imageUrl", "url", "time"]];
 		const raw_date = new Date();
+
+		
 		// to be used for the csv file name. ex: 2018-7-3.csv
-		const date = raw_date.getFullYear() + "-" + raw_date.getMonth() + "-" + raw_date.getDate();
+		const date = raw_date.getFullYear() + "-" + ('0' + raw_date.getMonth()).slice(-2) + "-" + ('0' + raw_date.getDate()).slice(-2);
 		// to be put in the csv file as the time. ex: 7:30
 		const hoursMinutes = raw_date.getHours() + ':' + raw_date.getMinutes();
 		for(let i=0; i<shirt_detail_urls.length; i++){
@@ -53,8 +56,9 @@ request(url, function(err, response, html){
 					let imageUrl = "http://shirts4mike.com/" + $('.shirt-picture').find('img').attr("src");
 					let url = url2;
 					let time = hoursMinutes;
+					// *****************************start below this
 
-					shirt_dictionaries.push({title, price, imageUrl, url, time});
+					shirt_dictionaries.push([title, price, imageUrl, url, time]);
 					// when all of the shirts have been scraped. 8 total shirts.
 					if(shirt_dictionaries.length == 8){
 						const dir = './data';
@@ -63,26 +67,22 @@ request(url, function(err, response, html){
 						    fs.mkdirSync(dir);
 						}
 
-						csv_info = "";
-						// get all the keys. 'title' 'price' etc to be put as headers in csv file.
-						for (let i in shirt_dictionaries[0]){
-							csv_info += `${i}                  `;
-						}
-						// puts all the shirts values under the headers in csv file.
-						for (let i=0; i<shirt_dictionaries.length; i++){
-							csv_info += "\n";
-							for (let a in shirt_dictionaries[i]){
-								csv_info += `${shirt_dictionaries[i][a]}; `
-							}
-						}
-						// put all the info in csv file.
-						fs.writeFile(`data/${date}.csv`, csv_info, function(err){
-							if(err){
-								errorMessage(err.message);
-							} else {
-								console.log(`Data has been added to ${date}.csv file.`);
-							}
+					
+						fs.unlink('data\\*.csv', function(error) {
+						    if (error) {
+						        throw error;
+						    }
 						});
+						fs.readdir('data', (err, files)=>{
+						   for (var i = 0, len = files.length; i < len; i++) {
+						      var match = files[i].match('*.csv');
+						      if(match !== null)
+						          fs.unlink(match[0]);
+						   }
+						});
+
+						createCSVFile(`data/${date}.csv`, shirt_dictionaries);
+						
 					}
 				}else{
 					errorMessage(err.message);
