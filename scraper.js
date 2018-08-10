@@ -2,6 +2,7 @@ const request = require('request');
 const cheerio = require('cheerio');
 const fs = require('fs');
 const createCSVFile = require('csv-file-creator');
+const glob = require("glob");
 
 // the website to be scraped.
 const url = "http://shirts4mike.com/shirts.php";
@@ -35,12 +36,12 @@ request(url, function(err, response, html){
     		shirt_detail_urls.push($(li).find('a').attr("href")); // "this" is the current element in the loop
 		});
 
-		// put an object literal for each shirt's title, price, etc in array.
+		// 'shirt_dictionaries will be used for the createCSVFile module'
 		const shirt_dictionaries = [["title", "price", "imageUrl", "url", "time"]];
 		const raw_date = new Date();
 
 		
-		// to be used for the csv file name. ex: 2018-7-3.csv
+		// to be used for the csv file name. ex: 2018-07-03.csv
 		const date = raw_date.getFullYear() + "-" + ('0' + raw_date.getMonth()).slice(-2) + "-" + ('0' + raw_date.getDate()).slice(-2);
 		// to be put in the csv file as the time. ex: 7:30
 		const hoursMinutes = raw_date.getHours() + ':' + raw_date.getMinutes();
@@ -56,8 +57,8 @@ request(url, function(err, response, html){
 					let imageUrl = "http://shirts4mike.com/" + $('.shirt-picture').find('img').attr("src");
 					let url = url2;
 					let time = hoursMinutes;
-					// *****************************start below this
 
+					// We want a bunch of arrays inside one container array.
 					shirt_dictionaries.push([title, price, imageUrl, url, time]);
 					// when all of the shirts have been scraped. 8 total shirts.
 					if(shirt_dictionaries.length == 8){
@@ -67,20 +68,16 @@ request(url, function(err, response, html){
 						    fs.mkdirSync(dir);
 						}
 
-					
-						fs.unlink('data\\*.csv', function(error) {
+						// gets the old csv file to delete
+						let file = glob.sync("data/*.csv");
+						// deletes the old csv file
+						fs.unlink(file[0], function(error) {
 						    if (error) {
 						        throw error;
 						    }
 						});
-						fs.readdir('data', (err, files)=>{
-						   for (var i = 0, len = files.length; i < len; i++) {
-						      var match = files[i].match('*.csv');
-						      if(match !== null)
-						          fs.unlink(match[0]);
-						   }
-						});
-
+						
+						// creates the new csv file
 						createCSVFile(`data/${date}.csv`, shirt_dictionaries);
 						
 					}
