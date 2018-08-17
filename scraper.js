@@ -42,7 +42,7 @@ request(url, function(err, response, html){
 
 		
 		// to be used for the csv file name. ex: 2018-07-03.csv
-		const date = raw_date.getFullYear() + "-" + ('0' + raw_date.getMonth()).slice(-2) + "-" + ('0' + raw_date.getDate()).slice(-2);
+		const date = raw_date.getFullYear() + "-" + ('0' + (raw_date.getMonth()+1)).slice(-2) + "-" + ('0' + raw_date.getDate()).slice(-2);
 		// to be put in the csv file as the time. ex: 7:30
 		const hoursMinutes = ('0' + raw_date.getHours()).slice(-2) + ':' + ('0' + raw_date.getMinutes()).slice(-2);
 		for(let i=0; i<shirt_detail_urls.length; i++){
